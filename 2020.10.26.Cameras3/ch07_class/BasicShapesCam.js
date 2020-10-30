@@ -84,10 +84,10 @@ function main() {
 //======================REVERSED-DEPTH Correction===============================
 
   //  b) reverse the usage of the depth-buffer's stored values, like this:
-  gl.enable(gl.DEPTH_TEST); // enabled by default, but let's be SURE.
-  gl.clearDepth(0.0);       // each time we 'clear' our depth buffer, set all
-                            // pixel depths to 0.0  (1.0 is DEFAULT)
-  gl.depthFunc(gl.GREATER); // draw a pixel only if its depth value is GREATER
+  // gl.enable(gl.DEPTH_TEST); // enabled by default, but let's be SURE.
+  // gl.clearDepth(0.0);       // each time we 'clear' our depth buffer, set all
+  //                           // pixel depths to 0.0  (1.0 is DEFAULT)
+  // gl.depthFunc(gl.GREATER); // draw a pixel only if its depth value is GREATER
                             // than the depth buffer's stored value.
                             // (gl.LESS is DEFAULT; reverse it!)
 //=====================================================================
@@ -602,6 +602,7 @@ function drawAll(gl, n, currentAngle, modelMatrix, u_ModelMatrix) {
                         		??);  // camera z-far distance (always positive; frustum ends at z = -zfar)
 
 */
+modelMatrix.perspective(42.0, 1.0, 1.0, 1000);
 
 /*
 //  STEP 1:
@@ -613,6 +614,9 @@ function drawAll(gl, n, currentAngle, modelMatrix, u_ModelMatrix) {
                       ??, ??, ??,	// look-at point 
                       ??, ??, ??);	// View UP vector.
 */
+// modelMatrix.lookAt( 0.5,  0.5,   0.3,
+// 				   -0.1, -0.2,  0.05, 
+// 				      0,  0,       1);
 
 /*
 // STEP 2: 
@@ -624,6 +628,9 @@ function drawAll(gl, n, currentAngle, modelMatrix, u_ModelMatrix) {
                       ??, ??, ??,	// look-at point 
                       ??, ??, ??);	// View UP vector.
 */
+modelMatrix.lookAt( 5, 5, 3,
+				   -1, -2, 0.5,
+				    0,  0,    1);
 
   //===========================================================
   //
