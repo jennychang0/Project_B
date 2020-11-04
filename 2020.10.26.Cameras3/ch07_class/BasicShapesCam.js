@@ -38,16 +38,40 @@ var FSHADER_SOURCE =
   '}\n';
 
 // Global Variables
+
+// ** ANGLE STEPS
 var ANGLE_STEP = 45.0;		// Rotation angle rate (degrees/second)
 var floatsPerVertex = 7;	// # of Float32Array elements used for each vertex
 													// (x,y,z,w)position + (r,g,b)color
 													// Later, see if you can add:
 													// (x,y,z) surface normal + (tx,ty) texture addr.
+// **NEED TRANSLATION/SCALE STEPS
+
+// View & Projection
+var eyeX = 5.0;
+var eyeY = 5.0;
+var eyeZ = 3.0;
+var atX = -1.0;
+var atY = -2.0;
+var atZ = 0.5;
+var theta = 0.0;  // turn camera horizontally to angle theta
+var r = eyeY-atY;  // radius of camera cylinder
+var tilt = 0.0;
+
+var fLeft = -2.0;  // frustum para
+var fRight = 2.0;
+var fBottom = -2.0;
+var fTop = 2.0;
+var fNear = 3.0;
+var fFar = 100.0; 
+var frustum = false;
 
 function main() {
 //==============================================================================
   // Retrieve <canvas> element
   var canvas = document.getElementById('webgl');
+  // canvas.width = innerWidth;
+  // canvas.height = innerWidth * 0.75 / 2;
 
   // Get the rendering context for WebGL
   var gl = getWebGLContext(canvas);
@@ -61,6 +85,7 @@ function main() {
     console.log('Failed to intialize shaders.');
     return;
   }
+
 
   // 
   var n = initVertexBuffer(gl);
@@ -102,11 +127,15 @@ function main() {
   var modelMatrix = new Matrix4();
   
   // Create, init current rotation angle value in JavaScript
-  var currentAngle = 0.0;
+  var currentAngle = 0.0
+
+  window.addEventListener("keydown", myKeyDown, false);	
 
 //-----------------  
   // Start drawing: create 'tick' variable whose value is this function:
   var tick = function() {
+  	// canvas.width  = innerWidth;
+  	// canvas.height = innerWidth * 0.75/2:
     currentAngle = animate(currentAngle);  // Update the rotation angle
     drawAll(gl, n, currentAngle, modelMatrix, u_ModelMatrix);   // Draw shapes
     // report current angle on console
@@ -602,6 +631,7 @@ function drawAll(gl, n, currentAngle, modelMatrix, u_ModelMatrix) {
                         		??);  // camera z-far distance (always positive; frustum ends at z = -zfar)
 
 */
+gl.viewport(0, 0, gl.drawingBufferWidth/2, gl.drawingBufferHeight);
 modelMatrix.perspective(42.0, 1.0, 1.0, 1000);
 
 /*
@@ -628,10 +658,12 @@ modelMatrix.perspective(42.0, 1.0, 1.0, 1000);
                       ??, ??, ??,	// look-at point 
                       ??, ??, ??);	// View UP vector.
 */
-modelMatrix.lookAt( 5, 5, 3,
-				   -1, -2, 0.5,
-				    0,  0,    1);
-
+// modelMatrix.lookAt( 5, 5, 3,
+// 				   -1, -2, 0.5,
+// 				    0,  0,    1);
+modelMatrix.lookAt(eyeX, eyeY, eyeZ,
+				     atX, atY, atZ,
+				     0,     0,   1);
   //===========================================================
   //
   pushMatrix(modelMatrix);     // SAVE world coord system;
@@ -704,6 +736,7 @@ modelMatrix.lookAt( 5, 5, 3,
     						  gndVerts.length/floatsPerVertex);	// draw this many vertices.
   modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
   //===========================================================
+
 }
 
 // Last time that this function was called:  (used for animation timing)
@@ -746,5 +779,96 @@ function runStop() {
   else {
   	ANGLE_STEP = myTmp;
   }
+}
+function myKeyDown(ev){
+    switch(ev.code){
+        case "KeyP":
+          // Toggle rotation
+          if(ANGLE_STEP*ANGLE_STEP > 1) {
+            myTmp = ANGLE_STEP;
+            ANGLE_STEP = 0;
+          }
+          else {
+            ANGLE_STEP = myTmp;
+          }
+          break;
+
+        case "ArrowLeft":
+            // camera move left
+            eyeX += 0.1*Math.cos(theta*Math.PI/180);
+            eyeY += 0.1*Math.sin(theta*Math.PI/180);
+            atX += 0.1*Math.cos(theta*Math.PI/180);
+            atY += 0.1*Math.sin(theta*Math.PI/180);
+            break;
+
+        case "ArrowRight":
+            // camera move right
+            eyeX -= 0.1*Math.cos(theta*Math.PI/180);
+            eyeY -= 0.1*Math.sin(theta*Math.PI/180);
+            atX -= 0.1*Math.cos(theta*Math.PI/180);
+            atY -= 0.1*Math.sin(theta*Math.PI/180);
+            break;
+
+        case "ArrowUp":
+            atZ += 0.1;
+            eyeZ += 0.1;
+            break;
+        
+        case "ArrowDown":
+            atZ -= 0.1;
+            eyeZ -= 0.1;
+            break;
+
+        case "Equal":
+            // camera move foward
+            eyeX += 0.1*Math.sin(theta*Math.PI/180);
+            atX += 0.1*Math.sin(theta*Math.PI/180); 
+            eyeY -= 0.1*Math.cos(theta*Math.PI/180);
+            atY -= 0.1*Math.cos(theta*Math.PI/180);
+            var tan = (atZ - eyeZ) / (atY - eyeY);
+            eyeZ -= 0.1*Math.cos(theta*Math.PI/180) * tan;
+            atZ -= 0.1*Math.cos(theta*Math.PI/180) * tan;
+            break;
+        
+        case "Minus":
+            // camera move backward
+            eyeX -= 0.1*Math.sin(theta*Math.PI/180);
+            atX -= 0.1*Math.sin(theta*Math.PI/180); 
+            eyeY += 0.1*Math.cos(theta*Math.PI/180);
+            atY += 0.1*Math.cos(theta*Math.PI/180);
+            var tan = (atZ - eyeZ) / (atY - eyeY);
+            eyeZ += 0.1*Math.cos(theta*Math.PI/180) * tan;
+            atZ += 0.1*Math.cos(theta*Math.PI/180) * tan;
+            break;
+
+        case "KeyI":
+            // camera move up
+            atZ += 0.1;  // tilt
+            break;
+
+        case "KeyK":
+            // camera move down
+            atZ -= 0.1;  // tilt
+            break;
+
+        case "KeyJ":
+            // camera look left
+            theta += 2;
+            atX = eyeX + r*Math.sin(theta*Math.PI/180);
+            atY = eyeY - r*Math.cos(theta*Math.PI/180);
+            break;
+
+        case "KeyL":
+            // camera look right
+            theta -= 2;
+            atX = eyeX + r*Math.sin(theta*Math.PI/180);
+            atY = eyeY - r*Math.cos(theta*Math.PI/180);
+            break;
+
+        // case "KeyV":
+        //     // change view perspective
+        //     frustum = !frustum;
+        //     break;
+    }
 }
  
