@@ -144,7 +144,8 @@ function main() {
     									// Request that the browser re-draw the webpage
   };
   tick();							// start (and continue) animation: draw current image
-    
+	
+  drawResize();
 }
 
 function initVertexBuffer(gl) {
@@ -872,3 +873,22 @@ function myKeyDown(ev){
     }
 }
  
+function drawResize() {
+	//==============================================================================
+	// Called when user re-sizes their browser window , because our HTML file
+	// contains:  <body onload="main()" onresize="winResize()">
+	
+		//Report our current browser-window contents:
+	
+	console.log('Canvas width,height=', canvas.width, canvas.height);		
+	 console.log('Browser window: innerWidth,innerHeight=', innerWidth, innerHeight);	
+																	// http://www.w3schools.com/jsref/obj_window.asp
+	
+		
+		//Make canvas fill the top 3/4 of our browser window:
+		var xtraMargin = 16;    // keep a margin (otherwise, browser adds scroll-bars)
+		canvas.width = innerWidth - xtraMargin;
+		canvas.height = (innerHeight*3/4) - xtraMargin;
+		// IMPORTANT!  Need a fresh drawing in the re-sized viewports.
+		drawAll(currentAngle, modelMatrix, u_ModelMatrix);				// draw in all viewports.
+}
