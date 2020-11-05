@@ -160,9 +160,12 @@ function initVertexBuffer(gl) {
   makeSphere();						// create, fill the sphVerts array
   makeTorus();						// create, fill the torVerts array
   makeGroundGrid();				// create, fill the gndVerts array
+  makeGiraffeNeck();
+  makeGiraffeHead();
+  makeGiraffeEars();
   // how many floats total needed to store all shapes?
 	var mySiz = (cylVerts.length + sphVerts.length + 
-							 torVerts.length + gndVerts.length);						
+							 torVerts.length + gndVerts.length+giraffeNeckVerts.length+giraffeHeadVerts.length+giraffeEarsVerts.length);						
 
 	// How many vertices total?
 	var nn = mySiz / floatsPerVertex;
@@ -186,6 +189,18 @@ function initVertexBuffer(gl) {
 	for(j=0; j< gndVerts.length; i++, j++) {
 		colorShapes[i] = gndVerts[j];
 		}
+		giraffeNeckStart = i
+	for(j=0; j<giraffeNeckVerts.length; i++,j++){
+		colorShapes[i] = giraffeNeckVerts[j];
+	}
+		giraffeHeadStart = i;
+	for(j=0; j<giraffeHeadVerts.length; i++,j++){
+		colorShapes[i] = giraffeHeadVerts[j];
+	}
+		giraffeEarsStart = i;
+	for(j=0; j<giraffeEarsVerts.length; i++,j++){
+		colorShapes[i] = giraffeEarsVerts[j];
+	}
   // Create a buffer object on the graphics hardware:
   var shapeBufferHandle = gl.createBuffer();  
   if (!shapeBufferHandle) {
@@ -620,6 +635,124 @@ function makeGroundGrid() {
 	}
 }
 
+function makeGiraffeNeck(){
+	giraffeNeckVerts = new Float32Array([
+		2.0,  2.0,  0.0,  1.0,		0.2, 0.1, 0.0, // B
+		1.0,  1.0, -1.0,  1.0,		1.0, 0.9, 0.2, // Y
+		1.0,  1.0,  1.0,  1.0,		1.0, 0.9, 0.2, // R
+
+		1.0,  1.0,  1.0,  1.0,		1.0, 0.9, 0.2, // R
+		1.0,  1.0, -1.0,  1.0,		1.0, 0.9, 0.2, // Y
+		-1.0, -1.0, 1.0,  1.0,		1.0, 0.8, 0.0, // O
+
+		1.0,  1.0, -1.0,  1.0,		1.0, 0.9, 0.2, // Y
+		-1.0, -1.0, 1.0,  1.0,		1.0, 0.8, 0.0, // O
+		-1.0, -1.0, -1.0, 1.0,		1.0, 0.8, 0.0, // G
+
+		-1.0, -1.0, -1.0, 1.0,		1.0, 0.8, 0.0, // G
+		-1.0, -1.0, 1.0,  1.0,		1.0, 0.8, 0.0, // O
+		-2.0, -2.0, 0.0,  1.0,		1.0, 0.9, 1.0, // P
+
+		2.0,  2.0,  0.0,  1.0,		0.2, 0.1, 0.0, // B
+		-14.0, 14.0, 0.0, 1.0,		0.2, 0.1, 0.0, // W
+		1.0,  1.0,  1.0,  1.0,		1.0, 0.9, 0.2, // R
+
+		1.0,  1.0,  1.0,  1.0,		1.0, 0.9, 0.2, // R
+		-14.0, 14.0, 0.0, 1.0,		0.2, 0.1, 0.0, // W
+		-1.0, -1.0, 1.0,  1.0,		1.0, 0.8, 0.0, // O
+
+		-1.0, -1.0, 1.0,  1.0,		1.0, 0.8, 0.0, // O
+		-14.0, 14.0, 0.0, 1.0,		0.2, 0.1, 0.0, // W
+		-2.0, -2.0, 0.0,  1.0,		1.0, 0.9, 1.0, // P
+
+		-2.0, -2.0, 0.0,  1.0,		1.0, 0.9, 1.0, // P
+		-14.0, 14.0, 0.0, 1.0,		0.2, 0.1, 0.0, // W
+		-1.0, -1.0, -1.0, 1.0,		1.0, 0.8, 0.0, // G
+
+		-1.0, -1.0, -1.0, 1.0,		1.0, 0.8, 0.0, // G
+		-14.0, 14.0, 0.0, 1.0,		0.2, 0.1, 0.0, // W
+		1.0,  1.0, -1.0,  1.0,		1.0, 0.9, 0.2, // Y
+
+		1.0,  1.0, -1.0,  1.0,		1.0, 0.9, 0.2, // Y
+		-14.0, 14.0, 0.0, 1.0,		0.2, 0.1, 0.0, // W
+		2.0,  2.0,  0.0,  1.0,		0.2, 0.1, 0.0, // B
+		])
+}
+
+function makeGiraffeHead(){
+	giraffeHeadVerts = new Float32Array([
+		// Head
+	2.0,  2.0,  0.0,  1.0,		1.0, 1.0, 1.0, // B
+	1.0,  1.0, -1.0,  1.0,		0.2, 0.2, 0.2, // Y
+	1.0,  1.0,  1.0,  1.0,		0.2, 0.2, 0.2, // R
+
+	1.0,  1.0,  1.0,  1.0,		0.2, 0.2, 0.2, // R
+	1.0,  1.0, -1.0,  1.0,		0.2, 0.2, 0.2, // Y
+	-1.0, -1.0, 1.0,  1.0,		1.0, 1.0, 1.0, // O
+
+	1.0,  1.0, -1.0,  1.0,		0.2, 0.2, 0.2, // Y
+	-1.0, -1.0, 1.0,  1.0,		1.0, 1.0, 1.0, // O
+	-1.0, -1.0, -1.0, 1.0,		1.0, 1.0, 1.0, // G
+
+	-1.0, -1.0, -1.0, 1.0,		1.0, 1.0, 1.0, // G
+	-1.0, -1.0, 1.0,  1.0,		1.0, 1.0, 1.0, // O
+	-2.0, -2.0, 0.0,  1.0,		0.2, 0.2, 0.2, // P
+
+	2.0,  2.0,  0.0,  1.0,		1.0, 1.0, 1.0, // B
+	-8.0,  8.0, 0.0, 1.0,		1.0, 0.4, 0.6, // W
+	1.0,  1.0,  1.0,  1.0,		0.2, 0.2, 0.2, // R
+
+	1.0,  1.0,  1.0,  1.0,		0.2, 0.2, 0.2, // R
+	-8.0,  8.0, 0.0, 1.0,		1.0, 0.4, 0.6, // W
+	-1.0, -1.0, 1.0,  1.0,		1.0, 1.0, 1.0, // O
+
+	-1.0, -1.0, 1.0,  1.0,		1.0, 1.0, 1.0, // O
+	-8.0,  8.0, 0.0, 1.0,		1.0, 0.4, 0.6, // W
+	-2.0, -2.0, 0.0,  1.0,		0.2, 0.2, 0.2, // P
+
+	-2.0, -2.0, 0.0,  1.0,		0.2, 0.2, 0.2, // P
+	-8.0,  8.0, 0.0, 1.0,		1.0, 0.4, 0.6, // W
+	-1.0, -1.0, -1.0, 1.0,		1.0, 1.0, 1.0, // G
+
+	-1.0, -1.0, -1.0, 1.0,		1.0, 1.0, 1.0, // G
+	-8.0,  8.0, 0.0, 1.0,		1.0, 0.4, 0.6, // W
+	1.0,  1.0, -1.0,  1.0,		0.2, 0.2, 0.2, // Y
+
+	1.0,  1.0, -1.0,  1.0,		0.2, 0.2, 0.2, // Y
+	-8.0,  8.0, 0.0, 1.0,		1.0, 0.4, 0.6, // W
+	2.0,  2.0,  0.0,  1.0,		1.0, 1.0, 1.0, // B
+	])
+}
+
+function makeGiraffeEars(){
+	giraffeEarsVerts = new Float32Array([
+		// Ear
+	0.0,  0.0,  0.0,  1.0, 		0.5, 0.0, 0.5, // A
+	1.0,  0.0,  1.0,  1.0,		0.0, 0.0, 0.0, // C
+	0.0,  0.5,  1.0,  1.0,		1.0, 1.0, 0.0, // D
+
+	0.0,  0.5,  1.0,  1.0,		1.0, 1.0, 0.0, // D
+	1.0,  0.0,  1.0,  1.0,		0.0, 0.0, 0.0, // C
+	0.0,  0.0,  3.0,  1.0,		0.0, 0.8, 0.4, // B
+
+	0.0,  0.0,  3.0,  1.0,		0.0, 0.8, 0.4, // B
+	1.0,  0.0,  1.0,  1.0,		0.0, 0.0, 0.0, // C
+	0.0, -0.5,  1.0,  1.0,		0.7, 0.2, 0.0, // E
+
+	0.0, -0.5,  1.0,  1.0,		0.7, 0.2, 0.0, // E
+	1.0,  0.0,  1.0,  1.0,		0.0, 0.0, 0.0, // C
+	0.0,  0.0,  0.0,  1.0, 		0.5, 0.0, 0.5, // A
+
+	0.0,  0.0,  0.0,  1.0, 		0.5, 0.0, 0.5, // A
+	0.0,  0.5,  1.0,  1.0,		1.0, 1.0, 0.0, // D
+	0.0, -0.5,  1.0,  1.0,		0.7, 0.2, 0.0, // E
+
+	0.0,  0.5,  1.0,  1.0,		1.0, 1.0, 0.0, // D
+	0.0, -0.5,  1.0,  1.0,		0.7, 0.2, 0.0, // E
+	0.0,  0.0,  3.0,  1.0,		0.0, 0.8, 0.4, // B
+	])
+}
+
 function drawAll(gl, n, currentAngle, modelMatrix, u_ModelMatrix) {
 //==============================================================================
   // Clear <canvas>  colors AND the depth buffer
@@ -676,17 +809,40 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
     modelMatrix.translate(-0.4,-0.4, 0.0);  // 'set' means DISCARD old matrix,
     						// (drawing axes centered in CVV), and then make new
     						// drawing axes moved to the lower-left corner of CVV. 
-    modelMatrix.scale(0.2, 0.2, 0.2);
+    modelMatrix.scale(0.1, 0.1, 0.1);
     						// if you DON'T scale, cyl goes outside the CVV; clipped!
     modelMatrix.rotate(currentAngle, 0, 1, 0);  // spin around y axis.
   	// Drawing:
     // Pass our current matrix to the vertex shaders:
     gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
     // Draw the cylinder's vertices, and no other vertices:
-    gl.drawArrays(gl.TRIANGLE_STRIP,				// use this drawing primitive, and
-    							cylStart/floatsPerVertex, // start at this vertex number, and
-    							cylVerts.length/floatsPerVertex);	// draw this many vertices.
-  modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
+    // gl.drawArrays(gl.TRIANGLE_STRIP,				// use this drawing primitive, and
+    // 							cylStart/floatsPerVertex, // start at this vertex number, and
+    // 							cylVerts.length/floatsPerVertex);	// draw this many vertices.
+    gl.drawArrays(gl.TRIANGLES,				// use this drawing primitive, and
+    							giraffeNeckStart/floatsPerVertex, // start at this vertex number, and
+     							giraffeNeckVerts.length/floatsPerVertex);	// draw this many vertices.
+        modelMatrix = popMatrix();
+    pushMatrix(modelMatrix);
+    // modelMatrix.translate(0.5, 0.5, 0.0);
+    // modelMatrix.scale(0.1, 0.1, 0.1);
+    // gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+    // gl.drawArrays(gl.TRIANGLES, 
+    // 							giraffeHeadStart/floatsPerVertex,
+    // 							giraffeHeadVerts.length/floatsPerVertex);
+
+    
+    // gl.drawArrays(gl.TRIANGLES,
+    // 							giraffeHeadStart/floatsPerVertex,
+    // 							giraffeHeadVerts.length/floatsPerVertex);
+
+  // modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
+  // pushMatrix(modelMatrix);
+  // //===========================================================
+  // gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+  // gl.drawArrays(gl.TRIANGLES,
+  // 							giraffeEarsStart/floatsPerVertex,
+  // 							giraffeEarsVerts.length/floatsPerVertex);
   //===========================================================
   //  
   pushMatrix(modelMatrix);  // SAVE world drawing coords.
@@ -705,25 +861,28 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
     gl.drawArrays(gl.TRIANGLE_STRIP,				// use this drawing primitive, and
     							sphStart/floatsPerVertex,	// start at this vertex number, and 
     							sphVerts.length/floatsPerVertex);	// draw this many vertices.
+    // gl.drawArrays(gl.TRIANGLES, 
+    // 							giraffeHeadStart/floatsPerVertex,
+    // 							giraffeHeadVerts.length/floatsPerVertex);
   modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
   
   //===========================================================
   //  
-  pushMatrix(modelMatrix);  // SAVE world drawing coords.
-  //--------Draw Spinning torus
-    modelMatrix.translate(-0.4, 0.4, 0.0);	// 'set' means DISCARD old matrix,
+  // pushMatrix(modelMatrix);  // SAVE world drawing coords.
+  // //--------Draw Spinning torus
+  //   modelMatrix.translate(-0.4, 0.4, 0.0);	// 'set' means DISCARD old matrix,
   
-    modelMatrix.scale(0.3, 0.3, 0.3);
-    						// Make it smaller:
-    modelMatrix.rotate(currentAngle, 0, 1, 1);  // Spin on YZ axis
-  	// Drawing:		
-  	// Pass our current matrix to the vertex shaders:
-    gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
-    		// Draw just the torus's vertices
-    gl.drawArrays(gl.TRIANGLE_STRIP, 				// use this drawing primitive, and
-    						  torStart/floatsPerVertex,	// start at this vertex number, and
-    						  torVerts.length/floatsPerVertex);	// draw this many vertices.
-  modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
+  //   modelMatrix.scale(0.3, 0.3, 0.3);
+  //   						// Make it smaller:
+  //   modelMatrix.rotate(currentAngle, 0, 1, 1);  // Spin on YZ axis
+  // 	// Drawing:		
+  // 	// Pass our current matrix to the vertex shaders:
+  //   gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+  //   		// Draw just the torus's vertices
+  //   gl.drawArrays(gl.TRIANGLE_STRIP, 				// use this drawing primitive, and
+  //   						  torStart/floatsPerVertex,	// start at this vertex number, and
+  //   						  torVerts.length/floatsPerVertex);	// draw this many vertices.
+  // modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
   //===========================================================
   //
   pushMatrix(modelMatrix);  // SAVE world drawing coords.
@@ -876,7 +1035,7 @@ function myKeyDown(ev){
           }
           break;
 
-        case "ArrowLeft":
+        case "KeyA":
             // camera move left
             eyeX += 0.1*Math.cos(theta*Math.PI/180);
             eyeY += 0.1*Math.sin(theta*Math.PI/180);
@@ -884,7 +1043,7 @@ function myKeyDown(ev){
             atY += 0.1*Math.sin(theta*Math.PI/180);
             break;
 
-        case "ArrowRight":
+        case "KeyD":
             // camera move right
             eyeX -= 0.1*Math.cos(theta*Math.PI/180);
             eyeY -= 0.1*Math.sin(theta*Math.PI/180);
@@ -892,17 +1051,8 @@ function myKeyDown(ev){
             atY -= 0.1*Math.sin(theta*Math.PI/180);
             break;
 
-        case "ArrowUp":
-            atZ += 0.1;
-            eyeZ += 0.1;
-            break;
-        
-        case "ArrowDown":
-            atZ -= 0.1;
-            eyeZ -= 0.1;
-            break;
 
-        case "Equal":
+        case "KeyW":
             // camera move foward
             eyeX += 0.1*Math.sin(theta*Math.PI/180);
             atX += 0.1*Math.sin(theta*Math.PI/180); 
@@ -913,7 +1063,7 @@ function myKeyDown(ev){
             atZ -= 0.1*Math.cos(theta*Math.PI/180) * tan;
             break;
         
-        case "Minus":
+        case "KeyS":
             // camera move backward
             eyeX -= 0.1*Math.sin(theta*Math.PI/180);
             atX -= 0.1*Math.sin(theta*Math.PI/180); 
@@ -924,24 +1074,24 @@ function myKeyDown(ev){
             atZ += 0.1*Math.cos(theta*Math.PI/180) * tan;
             break;
 
-        case "KeyI":
+        case "ArrowUp":
             // camera move up
             atZ += 0.1;  // tilt
             break;
 
-        case "KeyK":
+        case "ArrowDown":
             // camera move down
             atZ -= 0.1;  // tilt
             break;
 
-        case "KeyJ":
+        case "ArrowLeft":
             // camera look left
             theta += 2;
             atX = eyeX + r*Math.sin(theta*Math.PI/180);
             atY = eyeY - r*Math.cos(theta*Math.PI/180);
             break;
 
-        case "KeyL":
+        case "ArrowRight":
             // camera look right
             theta -= 2;
             atX = eyeX + r*Math.sin(theta*Math.PI/180);
