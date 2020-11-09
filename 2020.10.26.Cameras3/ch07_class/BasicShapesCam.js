@@ -1521,18 +1521,14 @@ function nextShape() {
 	if(shapeNum >= shapeMax) shapeNum = 0;
 }
 
-function resetQuat() {
-	// Called when user presses 'Reset' button on our webpage, just below the 
-	// 'Current Quaternion' display.
-	  var res=5;
-		qTot.clear();
-		document.getElementById('QuatValue').innerHTML= 
-															 '\t X=' +qTot.x.toFixed(res)+
-															'i\t Y=' +qTot.y.toFixed(res)+
-															'j\t Z=' +qTot.z.toFixed(res)+
-															'k\t W=' +qTot.w.toFixed(res)+
-															'<br>length='+qTot.length().toFixed(res);
-	}
+function clearDrag() {
+	// Called when user presses 'Clear' button in our webpage
+		g_xMdragTot = 0.0;
+		g_yMdragTot = 0.0;
+		g_init_r = 0.5;
+		g_init_g = 0.5;
+		g_init_b = 0.5;
+}
 
 function spinDown() {
  ANGLE_STEP -= 25; 
