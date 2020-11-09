@@ -1046,7 +1046,7 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
 
  	// modelMatrix = popMatrix();
  	modelMatrix = popMatrix();
- 	pushMatrix(modelMatrix);
+ 	
 
 
 
@@ -1170,7 +1170,7 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
   modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
   //===========================================================
   // DRAW GROUND GRID
-  pushMatrix(modelMatrix);  // SAVE world drawing coords.
+  
 
   	//---------Draw Ground Plane, without spinning.
   	// position it.
@@ -1222,46 +1222,143 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
   // modelMatrix.lookAt( 5, 5, 3,
   // 				   -1, -2, 0.5,
   // 				    0,  0,    1);
-  modelMatrix.setPerspective(42.0, canvas.width/2/canvas.height, 1.0, 1000);
-  pushMatrix(modelMatrix);
   
-  modelMatrix.setOrtho(-3, 3, -3, 3, 0, 30.0);
-  //modelMatrix.setPerspective(42.0, canvas.width/2/canvas.height, 1.0, 1000);
-  modelMatrix.lookAt(eyeX, eyeY, eyeZ,
-					   atX, atY, atZ,
-					   0,     0,   1);
+  modelMatrix.setPerspective(42.0, canvas.width/2/canvas.height, 1.0, 1000);
+  
+pushMatrix(modelMatrix);
+modelMatrix.setOrtho(-3, 3, -3, 3, 0, 30.0);
+modelMatrix.lookAt(eyeX, eyeY, eyeZ,
+				     atX, atY, atZ,
+					 0,     0,   1);
 
-	//===========================================================
-	//
-	pushMatrix(modelMatrix);     // SAVE world coord system;
-		  //-------Draw Spinning Cylinder:
-	  modelMatrix.translate(-0.4,-0.4, 0.0);  // 'set' means DISCARD old matrix,
-							  // (drawing axes centered in CVV), and then make new
-							  // drawing axes moved to the lower-left corner of CVV. 
-	  modelMatrix.scale(0.1, 0.1, 0.1);
-							  // if you DON'T scale, cyl goes outside the CVV; clipped!
-	  modelMatrix.rotate(currentAngle, 0, 1, 0);  // spin around y axis.
-		// Drawing:
-	  // Pass our current matrix to the vertex shaders:
-	  gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
-	  // Draw the cylinder's vertices, and no other vertices:
-	  // gl.drawArrays(gl.TRIANGLE_STRIP,				// use this drawing primitive, and
-	  // 							cylStart/floatsPerVertex, // start at this vertex number, and
-	  // 							cylVerts.length/floatsPerVertex);	// draw this many vertices.
-	  gl.drawArrays(gl.TRIANGLES,				// use this drawing primitive, and
-								  giraffeNeckStart/floatsPerVertex, // start at this vertex number, and
-								   giraffeNeckVerts.length/floatsPerVertex);	// draw this many vertices.
-		  modelMatrix = popMatrix();
+  //===========================================================
+  //
 
+  pushMatrix(modelMatrix);     // SAVE world coord system;
+    	//-------Draw Spinning Cylinder:
+    modelMatrix.translate(-0.4,-0.4, 0.4);  // 'set' means DISCARD old matrix,
+    						// (drawing axes centered in CVV), and then make new
+    						// drawing axes moved to the lower-left corner of CVV. 
+    modelMatrix.scale(0.1, 0.1, 0.1);
+    						// if you DON'T scale, cyl goes outside the CVV; clipped!
+    //modelMatrix.rotate(currentAngle, 0, 1, 0);  // spin around y axis.
+    modelMatrix.rotate(90,0,1,0);
+  	// Drawing:
+    // Pass our current matrix to the vertex shaders:
+    gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+    // Draw the cylinder's vertices, and no other vertices:
+    // gl.drawArrays(gl.TRIANGLE_STRIP,				// use this drawing primitive, and
+    // 							cylStart/floatsPerVertex, // start at this vertex number, and
+    // 							cylVerts.length/floatsPerVertex);	// draw this many vertices.
+    gl.drawArrays(gl.TRIANGLES,				// use this drawing primitive, and
+    							giraffeNeckStart/floatsPerVertex, // start at this vertex number, and
+     							giraffeNeckVerts.length/floatsPerVertex);	// draw this many vertices.
+
+    modelMatrix.translate(-14, 14, 0);
+    modelMatrix.scale(0.5, 0.5, 0.5);
+    modelMatrix.rotate(-90, 0, 0);
+    gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+    gl.drawArrays(gl.TRIANGLES,
+    							giraffeHeadStart/floatsPerVertex,
+    							giraffeHeadVerts.length/floatsPerVertex);
+
+    // draw horns
+    //modelMatrix = popMatrix(); 
+    pushMatrix(modelMatrix);
+
+
+ 	modelMatrix.translate(1.0, 1.0, 0.5);
+ 	modelMatrix.scale(0.5, 0.5, 0.5);
+ 	modelMatrix.rotate(-120, 0, 0, 1);
+ 	gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+ 	gl.drawArrays(gl.TRIANGLES, 
+ 							giraffeHornStart/floatsPerVertex,
+ 							giraffeHornVerts.length/floatsPerVertex);
+ 	modelMatrix = popMatrix(); 
+ 	pushMatrix(modelMatrix);
+
+ 	modelMatrix.translate(1.0, 1.0, -1);
+ 	modelMatrix.scale(0.5, 0.5, 0.5);
+ 	modelMatrix.rotate(-120, 0, 0, 1);
+	gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+	gl.drawArrays(gl.TRIANGLES, 
+ 							giraffeHornStart/floatsPerVertex,
+ 							giraffeHornVerts.length/floatsPerVertex);
+ 	modelMatrix = popMatrix(); 
+ 	// pushMatrix(modelMatrix);
+
+ 	// draw ears
+ 	// modelMatrix.translate(0.0, 2.0, 1.0);
+ 	// modelMatrix.scale(2.0, 2.0, 2.0);
+ 	// modelMatrix.rotate(-75, 0, -0.1, 1);
+ 	// gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+ 	// gl.drawArrays(gl.TRIANGLES, 
+ 	// 						giraffeEarsStart/floatsPerVertex,
+ 	// 						giraffeEarsVerts.length/floatsPerVertex);
+ 	// modelMatrix.popMatrix();
+ 	// pushMatrix(modelMatrix);
+
+ 	// modelMatrix.translate(0.0, 2.0, -1.0);
+ 	// modelMatrix.scale(2.0, 2.0, -2.0);
+ 	// modelMatrix.rotate(-75, 0, -0.2, 1);
+ 	// gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+ 	// gl.drawArrays(gl.TRIANGLES, 
+ 	// 						giraffeEarsStart/floatsPerVertex,
+ 	// 						giraffeEarsVerts.length/floatsPerVertex);
+
+ 	// modelMatrix = popMatrix();
+ 	modelMatrix = popMatrix();
+ 	
+
+
+
+  // modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
+  // pushMatrix(modelMatrix);
+  // //===========================================================
+  // gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+  // gl.drawArrays(gl.TRIANGLES,
+  // 							giraffeEarsStart/floatsPerVertex,
+  // 							giraffeEarsVerts.length/floatsPerVertex);
+  //===========================================================
+  //  draw WATER BOWL THING
+
+  pushMatrix(modelMatrix);  // SAVE world drawing coords.
+    //--------Draw Spinning Sphere
+    modelMatrix.translate( 1.5, 1.5, 0.4); // 'set' means DISCARD old matrix,
+    						// (drawing axes centered in CVV), and then make new
+    						// drawing axes moved to the lower-left corner of CVV.
+                          // to match WebGL display canvas.
+    modelMatrix.scale(0.3, 0.3, 0.3);
+    						// Make it smaller:
+    modelMatrix.rotate(180, 1, 1, 0);  // Spin on XY diagonal axis
+  	// Drawing:		
+  	// Pass our current matrix to the vertex shaders:
+    gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+    		// Draw just the sphere's vertices
+    // gl.drawArrays(gl.TRIANGLE_STRIP,				// use this drawing primitive, and
+    // 							sphStart/floatsPerVertex,	// start at this vertex number, and 
+    // 							sphVerts.length/floatsPerVertex);	// draw this many vertices.
+
+     gl.drawArrays(gl.TRIANGLE_STRIP,				// use this drawing primitive, and
+    							cylStart/floatsPerVertex,	// start at this vertex number, and 
+    							cylVerts.length/floatsPerVertex);	// draw this many vertices.
+    // gl.drawArrays(gl.TRIANGLES, 
+    // 							giraffeHeadStart/floatsPerVertex,
+    // 							giraffeHeadVerts.length/floatsPerVertex);
+  modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
+
+
+  //===========================================================
+	//  draw APPLE
 	pushMatrix(modelMatrix);  // SAVE world drawing coords.
 	  //--------Draw Spinning Sphere
-	  modelMatrix.translate( 0.4, 0.4, 0.0); // 'set' means DISCARD old matrix,
+	  modelMatrix.translate( -0.1, 0.8, 0.2); // 'set' means DISCARD old matrix,
 							  // (drawing axes centered in CVV), and then make new
 							  // drawing axes moved to the lower-left corner of CVV.
 							// to match WebGL display canvas.
-	  modelMatrix.scale(0.3, 0.3, 0.3);
+	  modelMatrix.scale(0.1, 0.1, 0.1);
 							  // Make it smaller:
-	  modelMatrix.rotate(currentAngle, 1, 1, 0);  // Spin on XY diagonal axis
+	  //modelMatrix.rotate(currentAngle, 1, 1, 0);  // Spin on XY diagonal axis
 		// Drawing:		
 		// Pass our current matrix to the vertex shaders:
 	  gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
@@ -1269,44 +1366,87 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
 	  gl.drawArrays(gl.TRIANGLE_STRIP,				// use this drawing primitive, and
 								  sphStart/floatsPerVertex,	// start at this vertex number, and 
 								  sphVerts.length/floatsPerVertex);	// draw this many vertices.
-	  // gl.drawArrays(gl.TRIANGLES, 
-	  // 							giraffeHeadStart/floatsPerVertex,
-	  // 							giraffeHeadVerts.length/floatsPerVertex);
-	modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
-	
-	//===========================================================
-	//  
-	// pushMatrix(modelMatrix);  // SAVE world drawing coords.
-	// //--------Draw Spinning torus
-	//   modelMatrix.translate(-0.4, 0.4, 0.0);	// 'set' means DISCARD old matrix,
-	
-	//   modelMatrix.scale(0.3, 0.3, 0.3);
-	//   						// Make it smaller:
-	//   modelMatrix.rotate(currentAngle, 0, 1, 1);  // Spin on YZ axis
-	// 	// Drawing:		
-	// 	// Pass our current matrix to the vertex shaders:
-	//   gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
-	//   		// Draw just the torus's vertices
-	//   gl.drawArrays(gl.TRIANGLE_STRIP, 				// use this drawing primitive, and
-	//   						  torStart/floatsPerVertex,	// start at this vertex number, and
-	//   						  torVerts.length/floatsPerVertex);	// draw this many vertices.
-	// modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
-	//===========================================================
-	//
-	//pushMatrix(modelMatrix);  // SAVE world drawing coords.
-		//---------Draw Ground Plane, without spinning.
-		// position it.
-		modelMatrix.translate( 0.4, -0.4, 0.0);	
-		modelMatrix.scale(0.1, 0.1, 0.1);				// shrink by 10X:
-  
-		// Drawing:
-		// Pass our current matrix to the vertex shaders:
+
+	  modelMatrix.translate(0.0, 0.0, 1.0);
+	  modelMatrix.scale(0.2, 0.2, 0.8);
 	  gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
-	  // Draw just the ground-plane's vertices
-	  gl.drawArrays(gl.LINES, 								// use this drawing primitive, and
-								gndStart/floatsPerVertex,	// start at this vertex number, and
-								gndVerts.length/floatsPerVertex);	// draw this many vertices.
+	  gl.drawArrays(gl.TRIANGLES, 
+	  						treeBarkStart/floatsPerVertex,
+	  						treeBarkVerts.length/floatsPerVertex);
 	modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
+	
+	//===========================================================
+  
+  //===========================================================
+  //   DRAW TREE
+
+  pushMatrix(modelMatrix);  // SAVE world drawing coords.
+  //--------Draw Spinning torus
+    	// 'set' means DISCARD old matrix,
+    modelMatrix.translate(-1, 1, 0.0);
+    modelMatrix.scale(0.4, 0.4, 0.4)
+	gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+	gl.drawArrays(gl.TRIANGLES, 				// use this drawing primitive, and
+    						  treeBarkStart/floatsPerVertex,	// start at this vertex number, and
+    						  treeBarkVerts.length/floatsPerVertex);	// draw this many vertices.
+
+  	modelMatrix.translate(0.0, 0.0, 1.0);
+    modelMatrix.scale(1.3, 1.3, 1.3);
+    modelMatrix.rotate(currentAngle, 1, 0, 0);
+    						// Make it smaller:
+    //modelMatrix.rotate(currentAngle, 0, 1, 1);  // Spin on YZ axis
+  	// Drawing:		
+  	// Pass our current matrix to the vertex shaders:
+    gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+    		// Draw just the torus's vertices
+    gl.drawArrays(gl.TRIANGLES, 				// use this drawing primitive, and
+    						  treePartStart/floatsPerVertex,	// start at this vertex number, and
+    						  treePartVerts.length/floatsPerVertex);	// draw this many vertices.
+   	
+   	modelMatrix.scale(0.8, 0.8, 0.8);
+   	modelMatrix.translate(0.0, 0.0, 1.0);
+   	modelMatrix.rotate(currentAngle, 1, 0, 0);
+   	gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+
+    gl.drawArrays(gl.TRIANGLES, 				// use this drawing primitive, and
+    						  treePartStart/floatsPerVertex,	// start at this vertex number, and
+    
+    						  treePartVerts.length/floatsPerVertex);
+ 	modelMatrix.scale(0.7, 0.7, 0.7);
+    modelMatrix.translate(0.0, 0.0, 1.0);
+   	modelMatrix.rotate(currentAngle, 1, 0, 0);
+   	gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+
+    gl.drawArrays(gl.TRIANGLES, 				// use this drawing primitive, and
+    						  treePartStart/floatsPerVertex,	// start at this vertex number, and
+    						  treePartVerts.length/floatsPerVertex);
+    modelMatrix.scale(0.5, 0.5, 0.5);
+    modelMatrix.translate(0.0, 0.0, 2.5);
+    modelMatrix.rotate(90, 1, 0, 0);
+    modelMatrix.rotate(currentAngle, 1, 0, 0);
+    gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+			  // Draw just the sphere's vertices
+	gl.drawArrays(gl.TRIANGLE_STRIP,				// use this drawing primitive, and
+								  torStart/floatsPerVertex,	// start at this vertex number, and 
+								  torVerts.length/floatsPerVertex);	// draw this many vertices.
+  modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
+  //===========================================================
+  // DRAW GROUND GRID
+  
+
+  	//---------Draw Ground Plane, without spinning.
+  	// position it.
+  	modelMatrix.translate( 0.4, -0.4, 0.0);	
+  	modelMatrix.scale(0.1, 0.1, 0.1);				// shrink by 10X:
+
+  	// Drawing:
+  	// Pass our current matrix to the vertex shaders:
+    gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+    // Draw just the ground-plane's vertices
+    gl.drawArrays(gl.LINES, 								// use this drawing primitive, and
+    						  gndStart/floatsPerVertex,	// start at this vertex number, and
+    						  gndVerts.length/floatsPerVertex);	// draw this many vertices.
+  modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
 
 }
 
