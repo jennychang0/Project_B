@@ -55,17 +55,10 @@ var eyeZ = 3.0;
 var atX = -1.0;
 var atY = -2.0;
 var atZ = 0.5;
-var theta = 0.0;  // turn camera horizontally to angle theta
+var theta = -68.0;  // turn camera horizontally to angle theta
 var r = eyeY-atY;  // radius of camera cylinder
 var tilt = 0.0;
 
-var fLeft = -2.0;  // frustum para
-var fRight = 2.0;
-var fBottom = -2.0;
-var fTop = 2.0;
-var fNear = 3.0;
-var fFar = 100.0; 
-var frustum = false;
 
   // Retrieve <canvas> element
   var canvas = document.getElementById('webgl');
@@ -935,9 +928,11 @@ function drawAll(gl, n, currentAngle, modelMatrix, u_ModelMatrix) {
                         		??);  // camera z-far distance (always positive; frustum ends at z = -zfar)
 
 */
-modelMatrix.setPerspective(42.0, 1.0, 1.0, 1000);
+
 gl.viewport(0, 0, innerWidth/2, innerHeight);
+
 console.log(canvas.width);
+
 //modelMatrix.perspective(42.0, 1.0, 1.0, 1000);
 
 /*
@@ -967,11 +962,16 @@ console.log(canvas.width);
 // modelMatrix.lookAt( 5, 5, 3,
 // 				   -1, -2, 0.5,
 // 				    0,  0,    1);
+modelMatrix.setPerspective(42.0, canvas.width/2/canvas.height, 1.0, 1000);
+pushMatrix(modelMatrix);
+
 modelMatrix.lookAt(eyeX, eyeY, eyeZ,
 				     atX, atY, atZ,
-				     0,     0,   1);
+					 0,     0,   1);
+
   //===========================================================
   //
+
   pushMatrix(modelMatrix);     // SAVE world coord system;
     	//-------Draw Spinning Cylinder:
     modelMatrix.translate(-0.4,-0.4, 0.4);  // 'set' means DISCARD old matrix,
@@ -1003,6 +1003,7 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
     // draw horns
     //modelMatrix = popMatrix(); 
     pushMatrix(modelMatrix);
+
 
  	modelMatrix.translate(1.0, 1.0, 0.5);
  	modelMatrix.scale(0.5, 0.5, 0.5);
@@ -1170,6 +1171,7 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
   //===========================================================
   // DRAW GROUND GRID
   pushMatrix(modelMatrix);  // SAVE world drawing coords.
+
   	//---------Draw Ground Plane, without spinning.
   	// position it.
   	modelMatrix.translate( 0.4, -0.4, 0.0);	
@@ -1184,16 +1186,51 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
     						  gndVerts.length/floatsPerVertex);	// draw this many vertices.
   modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
 
-
-  // NEW VIEWPORT
+//NEW VIEWPORT
+  
   //===========================================================
 
   gl.viewport(innerWidth/2, 0, innerWidth/2, innerHeight);
+  
   console.log(canvas.width);
-
+  //modelMatrix.perspective(42.0, 1.0, 1.0, 1000);
+  
+  /*
+  //  STEP 1:
+  // Make temporary view matrix that is still close to the origin and
+  // won't lose sight of our current CVV contents when used without 
+  // a properly-constructed projection matrix.
+  //TEMPORARY: 1/10th size camera pose to see what's in CVV locations
+	modelMatrix.lookAt( ??, ??, ??,	// center of projection
+						??, ??, ??,	// look-at point 
+						??, ??, ??);	// View UP vector.
+  */
+  // modelMatrix.lookAt( 0.5,  0.5,   0.3,
+  // 				   -0.1, -0.2,  0.05, 
+  // 				      0,  0,       1);
+  
+  /*
+  // STEP 2: 
+  //Replace the temporary view matrix with your final view matrix...
+  // GOAL: camera positioned at 3D point (5,5,3), looking at the 
+  //       3D point (-1,-2,-0.5),  using up vector (0,0,1).
+  
+	modelMatrix.lookAt( ??, ??, ??,	// center of projection
+						??, ??, ??,	// look-at point 
+						??, ??, ??);	// View UP vector.
+  */
+  // modelMatrix.lookAt( 5, 5, 3,
+  // 				   -1, -2, 0.5,
+  // 				    0,  0,    1);
+  modelMatrix.setPerspective(42.0, canvas.width/2/canvas.height, 1.0, 1000);
+  pushMatrix(modelMatrix);
+  
+  modelMatrix.setOrtho(-3, 3, -3, 3, 0, 30.0);
+  //modelMatrix.setPerspective(42.0, canvas.width/2/canvas.height, 1.0, 1000);
   modelMatrix.lookAt(eyeX, eyeY, eyeZ,
 					   atX, atY, atZ,
 					   0,     0,   1);
+
 	//===========================================================
 	//
 	pushMatrix(modelMatrix);     // SAVE world coord system;
@@ -1201,19 +1238,21 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
 	  modelMatrix.translate(-0.4,-0.4, 0.0);  // 'set' means DISCARD old matrix,
 							  // (drawing axes centered in CVV), and then make new
 							  // drawing axes moved to the lower-left corner of CVV. 
-	  modelMatrix.scale(0.2, 0.2, 0.2);
+	  modelMatrix.scale(0.1, 0.1, 0.1);
 							  // if you DON'T scale, cyl goes outside the CVV; clipped!
 	  modelMatrix.rotate(currentAngle, 0, 1, 0);  // spin around y axis.
 		// Drawing:
 	  // Pass our current matrix to the vertex shaders:
 	  gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
 	  // Draw the cylinder's vertices, and no other vertices:
-	  gl.drawArrays(gl.TRIANGLE_STRIP,				// use this drawing primitive, and
-								  cylStart/floatsPerVertex, // start at this vertex number, and
-								  cylVerts.length/floatsPerVertex);	// draw this many vertices.
-	modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
-	//===========================================================
-	//  
+	  // gl.drawArrays(gl.TRIANGLE_STRIP,				// use this drawing primitive, and
+	  // 							cylStart/floatsPerVertex, // start at this vertex number, and
+	  // 							cylVerts.length/floatsPerVertex);	// draw this many vertices.
+	  gl.drawArrays(gl.TRIANGLES,				// use this drawing primitive, and
+								  giraffeNeckStart/floatsPerVertex, // start at this vertex number, and
+								   giraffeNeckVerts.length/floatsPerVertex);	// draw this many vertices.
+		  modelMatrix = popMatrix();
+
 	pushMatrix(modelMatrix);  // SAVE world drawing coords.
 	  //--------Draw Spinning Sphere
 	  modelMatrix.translate( 0.4, 0.4, 0.0); // 'set' means DISCARD old matrix,
@@ -1230,28 +1269,31 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
 	  gl.drawArrays(gl.TRIANGLE_STRIP,				// use this drawing primitive, and
 								  sphStart/floatsPerVertex,	// start at this vertex number, and 
 								  sphVerts.length/floatsPerVertex);	// draw this many vertices.
+	  // gl.drawArrays(gl.TRIANGLES, 
+	  // 							giraffeHeadStart/floatsPerVertex,
+	  // 							giraffeHeadVerts.length/floatsPerVertex);
 	modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
 	
 	//===========================================================
 	//  
-	pushMatrix(modelMatrix);  // SAVE world drawing coords.
-	//--------Draw Spinning torus
-	  modelMatrix.translate(-0.4, 0.4, 0.0);	// 'set' means DISCARD old matrix,
+	// pushMatrix(modelMatrix);  // SAVE world drawing coords.
+	// //--------Draw Spinning torus
+	//   modelMatrix.translate(-0.4, 0.4, 0.0);	// 'set' means DISCARD old matrix,
 	
-	  modelMatrix.scale(0.3, 0.3, 0.3);
-							  // Make it smaller:
-	  modelMatrix.rotate(currentAngle, 0, 1, 1);  // Spin on YZ axis
-		// Drawing:		
-		// Pass our current matrix to the vertex shaders:
-	  gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
-			  // Draw just the torus's vertices
-	  gl.drawArrays(gl.TRIANGLE_STRIP, 				// use this drawing primitive, and
-								torStart/floatsPerVertex,	// start at this vertex number, and
-								torVerts.length/floatsPerVertex);	// draw this many vertices.
-	modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
+	//   modelMatrix.scale(0.3, 0.3, 0.3);
+	//   						// Make it smaller:
+	//   modelMatrix.rotate(currentAngle, 0, 1, 1);  // Spin on YZ axis
+	// 	// Drawing:		
+	// 	// Pass our current matrix to the vertex shaders:
+	//   gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+	//   		// Draw just the torus's vertices
+	//   gl.drawArrays(gl.TRIANGLE_STRIP, 				// use this drawing primitive, and
+	//   						  torStart/floatsPerVertex,	// start at this vertex number, and
+	//   						  torVerts.length/floatsPerVertex);	// draw this many vertices.
+	// modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
 	//===========================================================
 	//
-	pushMatrix(modelMatrix);  // SAVE world drawing coords.
+	//pushMatrix(modelMatrix);  // SAVE world drawing coords.
 		//---------Draw Ground Plane, without spinning.
 		// position it.
 		modelMatrix.translate( 0.4, -0.4, 0.0);	
@@ -1390,20 +1432,17 @@ function myKeyDown(ev){
             // camera look left
             theta += 2;
             atX = eyeX + r*Math.sin(theta*Math.PI/180);
-            atY = eyeY - r*Math.cos(theta*Math.PI/180);
+            atY =  -r*Math.cos(theta*Math.PI/180);
             break;
 
         case "ArrowRight":
             // camera look right
             theta -= 2;
             atX = eyeX + r*Math.sin(theta*Math.PI/180);
-            atY = eyeY - r*Math.cos(theta*Math.PI/180);
+            atY = -r*Math.cos(theta*Math.PI/180);
             break;
 
-        // case "KeyV":
-        //     // change view perspective
-        //     frustum = !frustum;
-        //     break;
+
     }
 }
  
