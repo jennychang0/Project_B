@@ -40,11 +40,12 @@ var FSHADER_SOURCE =
 // Global Variables
 
 // ** ANGLE STEPS
-var ANGLE_STEP = 45.0;		// Rotation angle rate (degrees/second)
+var ANGLE_STEP = 15.0;		// Rotation angle rate (degrees/second)
 var floatsPerVertex = 7;	// # of Float32Array elements used for each vertex
 													// (x,y,z,w)position + (r,g,b)color
 													// Later, see if you can add:
 													// (x,y,z) surface normal + (tx,ty) texture addr.
+
 // **NEED TRANSLATION/SCALE STEPS
 
 // View & Projection
@@ -123,6 +124,8 @@ function main() {
   
   // Create, init current rotation angle value in JavaScript
   var currentAngle = 0.0
+  var tree_angle = 0;
+  var tree_angleRate = 30.0;
 
   window.addEventListener("keydown", myKeyDown, false);	
 
@@ -132,6 +135,7 @@ function main() {
   	// canvas.width  = innerWidth;
   	// canvas.height = innerWidth * 0.75/2:
     currentAngle = animate(currentAngle);  // Update the rotation angle
+    tree_angle = animate();
     drawAll(gl, n, currentAngle, modelMatrix, u_ModelMatrix);   // Draw shapes
     // report current angle on console
     //console.log('currentAngle=',currentAngle);
@@ -156,9 +160,14 @@ function initVertexBuffer(gl) {
   makeGiraffeNeck();
   makeGiraffeHead();
   makeGiraffeEars();
+  makeGiraffeHorn();
+  maketreeParts();
+  makeTreeBark();
   // how many floats total needed to store all shapes?
 	var mySiz = (cylVerts.length + sphVerts.length + 
-							 torVerts.length + gndVerts.length+giraffeNeckVerts.length+giraffeHeadVerts.length+giraffeEarsVerts.length);						
+							 torVerts.length + gndVerts.length+giraffeNeckVerts.length+
+							 giraffeHeadVerts.length+giraffeEarsVerts.length + giraffeHornVerts.length + 
+							 treePartVerts.length + treeBarkVerts.length);						
 
 	// How many vertices total?
 	var nn = mySiz / floatsPerVertex;
@@ -194,6 +203,19 @@ function initVertexBuffer(gl) {
 	for(j=0; j<giraffeEarsVerts.length; i++,j++){
 		colorShapes[i] = giraffeEarsVerts[j];
 	}
+		giraffeHornStart = i;
+	for(j=0; j<giraffeHornVerts.length; i++,j++){
+		colorShapes[i] = giraffeHornVerts[j];
+	}
+		treePartStart = i;
+	for(j=0; j<treePartVerts.length; i++,j++){
+		colorShapes[i] = treePartVerts[j];
+	}
+		treeBarkStart = i;
+	for(j=0; j<treeBarkVerts.length; i++,j++){
+		colorShapes[i] = treeBarkVerts[j];
+	}
+
   // Create a buffer object on the graphics hardware:
   var shapeBufferHandle = gl.createBuffer();  
   if (!shapeBufferHandle) {
@@ -383,9 +405,14 @@ function makeSphere() {
 											// (choose odd # or prime# to avoid accidental symmetry)
   var sliceVerts	= 27;	// # of vertices around the top edge of the slice
 											// (same number of vertices on bottom of slice, too)
-  var topColr = new Float32Array([0.7, 0.7, 0.7]);	// North Pole: light gray
-  var equColr = new Float32Array([0.3, 0.7, 0.3]);	// Equator:    bright green
-  var botColr = new Float32Array([0.9, 0.9, 0.9]);	// South Pole: brightest gray.
+  // var topColr = new Float32Array([0.7, 0.7, 0.7]);	// North Pole: light gray
+  // var equColr = new Float32Array([0.3, 0.7, 0.3]);	// Equator:    bright green
+  // var botColr = new Float32Array([0.9, 0.9, 0.9]);	// South Pole: brightest gray.
+
+  											// (same number of vertices on bottom of slice, too)
+  var topColr = new Float32Array([1, 0, 0]);	// North Pole: light gray
+  var equColr = new Float32Array([1, 0, 0]);	// Equator:    bright green
+  var botColr = new Float32Array([1, 0, 0]);	// South Pole: brightest gray.
   var sliceAngle = Math.PI/slices;	// lattitude angle spanned by one slice.
 
 	// Create a (global) array to hold this sphere's vertices:
@@ -442,7 +469,7 @@ function makeSphere() {
 			if(s==0) {	// finally, set some interesting colors for vertices:
 				sphVerts[j+4]=topColr[0]; 
 				sphVerts[j+5]=topColr[1]; 
-				sphVerts[j+6]=topColr[2];	
+				sphVerts[j+6]=topColr[2];
 				}
 			else if(s==slices-1) {
 				sphVerts[j+4]=botColr[0]; 
@@ -450,9 +477,12 @@ function makeSphere() {
 				sphVerts[j+6]=botColr[2];	
 			}
 			else {
-					sphVerts[j+4]=Math.random();// equColr[0]; 
-					sphVerts[j+5]=Math.random();// equColr[1]; 
-					sphVerts[j+6]=Math.random();// equColr[2];					
+					// sphVerts[j+4]=Math.random();// equColr[0]; 
+					// sphVerts[j+5]=Math.random();// equColr[1]; 
+					// sphVerts[j+6]=Math.random();// equColr[2];	
+					sphVerts[j+4]=topColr[0]; // equColr[0]; 
+					sphVerts[j+5]=topColr[1]; // equColr[1]; 
+					sphVerts[j+6]=topColr[2]; // equColr[2];					
 			}
 		}
 	}
@@ -746,6 +776,144 @@ function makeGiraffeEars(){
 	])
 }
 
+function makeGiraffeHorn(){
+	giraffeHornVerts = new Float32Array([
+	0.0,  0.0,  0.0,  1.0,		1.0, 1.0, 1.0, // S
+	0.0,  0.0,  1.0,  1.0,		1.0, 1.0, 1.0, // T
+	1.0,  0.0,  1.0,  1.0,		1.0, 1.0, 1.0, // U
+
+	0.0,  0.0,  0.0,  1.0,		1.0, 1.0, 1.0, // S
+	1.0,  0.0,  1.0,  1.0,		1.0, 1.0, 1.0, // U
+	1.0,  0.0,  0.0,  1.0,		1.0, 1.0, 1.0, // V
+
+	0.0,  0.0,  0.0,  1.0,		1.0, 1.0, 1.0, // S
+	0.0,  0.0,  1.0,  1.0,		1.0, 1.0, 1.0, // T
+	0.0,  5.0,  0.0,  1.0,		0.5, 0.25, 0.0, // W
+
+	0.0,  5.0,  0.0,  1.0,		0.5, 0.25, 0.0, // W
+	0.0,  0.0,  1.0,  1.0,		1.0, 1.0, 1.0, // T
+	0.0,  5.0,  1.0,  1.0,		0.2, 0.1, 0.0, // Z
+
+	0.0,  0.0,  1.0,  1.0,		1.0, 1.0, 1.0, // T
+	1.0,  0.0,  1.0,  1.0,		1.0, 1.0, 1.0, // U
+	0.0,  5.0,  1.0,  1.0,		0.2, 0.1, 0.0, // Z
+
+	0.0,  5.0,  1.0,  1.0,		0.2, 0.1, 0.0, // Z
+	1.0,  0.0,  1.0,  1.0,		1.0, 1.0, 1.0, // U
+	1.0,  5.0,  1.0,  1.0,		0.5, 0.25, 0.0, // Y
+
+	0.0,  5.0,  0.0,  1.0,		0.5, 0.25, 0.0, // W
+	1.0,  5.0,  0.0,  1.0,		0.2, 0.1, 0.0, // X
+	0.0,  5.0,  1.0,  1.0,		0.2, 0.1, 0.0, // Z
+
+	1.0,  5.0,  0.0,  1.0,		0.2, 0.1, 0.0, // X
+	0.0,  5.0,  1.0,  1.0,		0.2, 0.1, 0.0, // Z
+	1.0,  5.0,  1.0,  1.0,		0.5, 0.25, 0.0, // Y
+
+	0.0,  5.0,  0.0,  1.0,		0.5, 0.25, 0.0, // W
+	0.0,  0.0,  0.0,  1.0,		1.0, 1.0, 1.0, // S
+	1.0,  5.0,  0.0,  1.0,		0.2, 0.1, 0.0, // X
+
+	1.0,  5.0,  0.0,  1.0,		0.2, 0.1, 0.0, // X
+	0.0,  0.0,  0.0,  1.0,		1.0, 1.0, 1.0, // S
+	1.0,  0.0,  0.0,  1.0,		1.0, 1.0, 1.0, // V
+
+	1.0,  5.0,  0.0,  1.0,		0.2, 0.1, 0.0, // X
+	1.0,  0.0,  1.0,  1.0,		1.0, 1.0, 1.0, // U
+	1.0,  5.0,  1.0,  1.0,		0.5, 0.25, 0.0, // Y
+
+	1.0,  5.0,  0.0,  1.0,		0.2, 0.1, 0.0, // X
+	1.0,  0.0,  1.0,  1.0,		1.0, 1.0, 1.0, // U
+	1.0,  0.0,  0.0,  1.0,		1.0, 1.0, 1.0, // V
+	])
+}
+
+function maketreeParts(){
+	treePartVerts = new Float32Array([
+		//base
+		-1.0, -1.0, 0.0, 1.0,  0.13, 0.55, 0.13, // D
+		1.0, 1.0, 0.0, 1.0,    0.13, 0.55, 0.13, // B
+		1.0, -1.0, 0.0, 1.0,   0.13, 0.55, 0.13, // E
+
+		-1.0, -1.0, 0.0, 1.0,  0.13, 0.55, 0.13, // D
+		1.0, 1.0, 0.0, 1.0,    0.13, 0.55, 0.13, // B
+		-1.0, 1.0, 0, 1.0,   0.13, 0.55, 0.13, // C	
+
+		0.0, 0.0, 1.0, 1.0,     0.0, 0.0, 0.0, // A
+		1.0, 1.0, 0.0, 1.0,    0.13, 0.55, 0.13, // B
+		-1.0, 1.0, 0.0, 1.0,   0.13, 0.55, 0.13, // C
+
+		0.0, 0.0, 1.0, 1.0,      0.0, 0.0, 0.0, // A
+		-1.0, 1.0, 0.0, 1.0,   0.13, 0.55, 0.13, // C	
+		-1.0, -1.0, 0.0, 1.0,  0.13, 0.55, 0.13, // D
+
+		0.0, 0.0, 1.0, 1.0,      0.0, 0.0, 0.0, // A
+		-1.0, -1.0, 0.0, 1.0,  0.13, 0.55, 0.13, // D
+		1.0, -1.0, 0.0, 1.0,   0.13, 0.55, 0.13, // E
+
+		0.0, 0.0, 1.0, 1.0,      0.0, 0.0, 0.0, // A
+		1.0, -1.0, 0.0, 1.0,   0.13, 0.55, 0.13, // E
+		1.0, 1.0, 0.0, 1.0,    0.13, 0.55, 0.13, // B
+
+		
+	])
+}
+
+function makeTreeBark(){
+	treeBarkVerts = new Float32Array([
+		0.0, 0.0, 0.0, 1.0,     0.59, 0.3, 0.0, // A
+		0.0, 1.0, 0.0, 1.0,     0.59, 0.3, 0.0, // B
+		1.0, 1.0, 0.0, 1.0,     0.59, 0.3, 0.0, // C
+
+		0.0, 0.0, 0.0, 1.0,     0.59, 0.3, 0.0,// A
+		1.0, 1.0, 0.0, 1.0,     0.59, 0.3, 0.0, // C
+		1.0, 0.0, 0.0, 1.0,     0.59, 0.3, 0.0, // D
+
+		0.0, 0.0, 0.0, 1.0,     0.59, 0.3, 0.0, // A
+		1.0, 0.0, 0.0, 1.0,     0.59, 0.3, 0.0, // D
+		0.0, 0.0, 1.0, 1.0,     0.0, 0.0, 0.0, // A'
+
+		1.0, 0.0, 0.0, 1.0,     0.59, 0.3, 0.0, // D
+		0.0, 0.0, 1.0, 1.0,     0.0, 0.0, 0.0, // A'
+		1.0, 0.0, 1.0, 1.0,     0.0, 0.0, 0.0, // D'
+
+		1.0, 0.0, 1.0, 1.0,     0.0, 0.0, 0.0, // D'
+		1.0, 0.0, 0.0, 1.0,     0.59, 0.3, 0.0, // D
+		1.0, 1.0, 0.0, 1.0,     0.59, 0.3, 0.0, // C
+
+		1.0, 1.0, 0.0, 1.0,     0.59, 0.3, 0.0, // C
+		1.0, 0.0, 1.0, 1.0,     0.0, 0.0, 0.0, // D'
+		1.0, 1.0, 1.0, 1.0,     0.0, 0.0, 0.0, // C'
+
+		1.0, 1.0, 0.0, 1.0,     0.59, 0.3, 0.0, // C
+		1.0, 1.0, 1.0, 1.0,     0.0, 0.0, 0.0, // C'
+		0.0, 1.0, 0.0, 1.0,     0.59, 0.3, 0.0, // B
+
+		0.0, 1.0, 0.0, 1.0,     0.59, 0.3, 0.0, // B
+		1.0, 1.0, 1.0, 1.0,     0.0, 0.0, 0.0, // C'
+		0.0, 1.0, 1.0, 1.0,     0.0, 0.0, 0.0, // B'
+
+		0.0, 1.0, 0.0, 1.0,     0.59, 0.3, 0.0, // B
+		0.0, 1.0, 1.0, 1.0,     1.0, 1.0, 1.0, // B'
+		0.0, 0.0, 0.0, 1.0,     0.59, 0.3, 0.0, // A
+
+		0.0, 1.0, 1.0, 1.0,     0.0, 0.0, 0.0, // B'
+		0.0, 0.0, 0.0, 1.0,     0.59, 0.3, 0.0,// A
+		0.0, 0.0, 1.0, 1.0,     0.0, 0.0, 0.0, // A'
+
+		0.0, 0.0, 1.0, 1.0,     0.0, 0.0, 0.0, // A'
+		0.0, 1.0, 1.0, 1.0,     0.0, 0.0, 0.0, // B'
+		1.0, 1.0, 1.0, 1.0,     0.0, 0.0, 0.0, // C'
+
+		0.0, 0.0, 1.0, 1.0,     0.0, 0.0, 0.0,// A'
+		1.0, 1.0, 1.0, 1.0,     0.0, 0.0, 0.0, // C'
+		1.0, 0.0, 1.0, 1.0,     0.0, 0.0, 0.0, // D'
+
+	])
+}
+
+
+
 function drawAll(gl, n, currentAngle, modelMatrix, u_ModelMatrix) {
 //==============================================================================
   // Clear <canvas>  colors AND the depth buffer
@@ -806,12 +974,13 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
 
   pushMatrix(modelMatrix);     // SAVE world coord system;
     	//-------Draw Spinning Cylinder:
-    modelMatrix.translate(-0.4,-0.4, 0.0);  // 'set' means DISCARD old matrix,
+    modelMatrix.translate(-0.4,-0.4, 0.4);  // 'set' means DISCARD old matrix,
     						// (drawing axes centered in CVV), and then make new
     						// drawing axes moved to the lower-left corner of CVV. 
     modelMatrix.scale(0.1, 0.1, 0.1);
     						// if you DON'T scale, cyl goes outside the CVV; clipped!
-    modelMatrix.rotate(currentAngle, 0, 1, 0);  // spin around y axis.
+    //modelMatrix.rotate(currentAngle, 0, 1, 0);  // spin around y axis.
+    modelMatrix.rotate(90,0,1,0);
   	// Drawing:
     // Pass our current matrix to the vertex shaders:
     gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
@@ -822,19 +991,64 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
     gl.drawArrays(gl.TRIANGLES,				// use this drawing primitive, and
     							giraffeNeckStart/floatsPerVertex, // start at this vertex number, and
      							giraffeNeckVerts.length/floatsPerVertex);	// draw this many vertices.
-    modelMatrix = popMatrix();
-    //pushMatrix(modelMatrix);
-    // modelMatrix.translate(0.5, 0.5, 0.0);
-    // modelMatrix.scale(0.1, 0.1, 0.1);
-    // gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
-    // gl.drawArrays(gl.TRIANGLES, 
-    // 							giraffeHeadStart/floatsPerVertex,
-    // 							giraffeHeadVerts.length/floatsPerVertex);
 
-    
-    // gl.drawArrays(gl.TRIANGLES,
-    // 							giraffeHeadStart/floatsPerVertex,
-    // 							giraffeHeadVerts.length/floatsPerVertex);
+    modelMatrix.translate(-14, 14, 0);
+    modelMatrix.scale(0.5, 0.5, 0.5);
+    modelMatrix.rotate(-90, 0, 0);
+    gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+    gl.drawArrays(gl.TRIANGLES,
+    							giraffeHeadStart/floatsPerVertex,
+    							giraffeHeadVerts.length/floatsPerVertex);
+
+    // draw horns
+    //modelMatrix = popMatrix(); 
+    pushMatrix(modelMatrix);
+
+
+ 	modelMatrix.translate(1.0, 1.0, 0.5);
+ 	modelMatrix.scale(0.5, 0.5, 0.5);
+ 	modelMatrix.rotate(-120, 0, 0, 1);
+ 	gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+ 	gl.drawArrays(gl.TRIANGLES, 
+ 							giraffeHornStart/floatsPerVertex,
+ 							giraffeHornVerts.length/floatsPerVertex);
+ 	modelMatrix = popMatrix(); 
+ 	pushMatrix(modelMatrix);
+
+ 	modelMatrix.translate(1.0, 1.0, -1);
+ 	modelMatrix.scale(0.5, 0.5, 0.5);
+ 	modelMatrix.rotate(-120, 0, 0, 1);
+	gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+	gl.drawArrays(gl.TRIANGLES, 
+ 							giraffeHornStart/floatsPerVertex,
+ 							giraffeHornVerts.length/floatsPerVertex);
+ 	modelMatrix = popMatrix(); 
+ 	// pushMatrix(modelMatrix);
+
+ 	// draw ears
+ 	// modelMatrix.translate(0.0, 2.0, 1.0);
+ 	// modelMatrix.scale(2.0, 2.0, 2.0);
+ 	// modelMatrix.rotate(-75, 0, -0.1, 1);
+ 	// gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+ 	// gl.drawArrays(gl.TRIANGLES, 
+ 	// 						giraffeEarsStart/floatsPerVertex,
+ 	// 						giraffeEarsVerts.length/floatsPerVertex);
+ 	// modelMatrix.popMatrix();
+ 	// pushMatrix(modelMatrix);
+
+ 	// modelMatrix.translate(0.0, 2.0, -1.0);
+ 	// modelMatrix.scale(2.0, 2.0, -2.0);
+ 	// modelMatrix.rotate(-75, 0, -0.2, 1);
+ 	// gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+ 	// gl.drawArrays(gl.TRIANGLES, 
+ 	// 						giraffeEarsStart/floatsPerVertex,
+ 	// 						giraffeEarsVerts.length/floatsPerVertex);
+
+ 	// modelMatrix = popMatrix();
+ 	modelMatrix = popMatrix();
+ 	pushMatrix(modelMatrix);
+
+
 
   // modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
   // pushMatrix(modelMatrix);
@@ -844,48 +1058,120 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
   // 							giraffeEarsStart/floatsPerVertex,
   // 							giraffeEarsVerts.length/floatsPerVertex);
   //===========================================================
-  //  
+  //  draw WATER BOWL THING
+
   pushMatrix(modelMatrix);  // SAVE world drawing coords.
     //--------Draw Spinning Sphere
-    modelMatrix.translate( 0.4, 0.4, 0.0); // 'set' means DISCARD old matrix,
+    modelMatrix.translate( 1.5, 1.5, 0.4); // 'set' means DISCARD old matrix,
     						// (drawing axes centered in CVV), and then make new
     						// drawing axes moved to the lower-left corner of CVV.
                           // to match WebGL display canvas.
     modelMatrix.scale(0.3, 0.3, 0.3);
     						// Make it smaller:
-    modelMatrix.rotate(currentAngle, 1, 1, 0);  // Spin on XY diagonal axis
+    modelMatrix.rotate(180, 1, 1, 0);  // Spin on XY diagonal axis
   	// Drawing:		
   	// Pass our current matrix to the vertex shaders:
     gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
     		// Draw just the sphere's vertices
-    gl.drawArrays(gl.TRIANGLE_STRIP,				// use this drawing primitive, and
-    							sphStart/floatsPerVertex,	// start at this vertex number, and 
-    							sphVerts.length/floatsPerVertex);	// draw this many vertices.
+    // gl.drawArrays(gl.TRIANGLE_STRIP,				// use this drawing primitive, and
+    // 							sphStart/floatsPerVertex,	// start at this vertex number, and 
+    // 							sphVerts.length/floatsPerVertex);	// draw this many vertices.
+
+     gl.drawArrays(gl.TRIANGLE_STRIP,				// use this drawing primitive, and
+    							cylStart/floatsPerVertex,	// start at this vertex number, and 
+    							cylVerts.length/floatsPerVertex);	// draw this many vertices.
     // gl.drawArrays(gl.TRIANGLES, 
     // 							giraffeHeadStart/floatsPerVertex,
     // 							giraffeHeadVerts.length/floatsPerVertex);
   modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
+
+
+  //===========================================================
+	//  draw APPLE
+	pushMatrix(modelMatrix);  // SAVE world drawing coords.
+	  //--------Draw Spinning Sphere
+	  modelMatrix.translate( -0.1, 0.8, 0.2); // 'set' means DISCARD old matrix,
+							  // (drawing axes centered in CVV), and then make new
+							  // drawing axes moved to the lower-left corner of CVV.
+							// to match WebGL display canvas.
+	  modelMatrix.scale(0.1, 0.1, 0.1);
+							  // Make it smaller:
+	  //modelMatrix.rotate(currentAngle, 1, 1, 0);  // Spin on XY diagonal axis
+		// Drawing:		
+		// Pass our current matrix to the vertex shaders:
+	  gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+			  // Draw just the sphere's vertices
+	  gl.drawArrays(gl.TRIANGLE_STRIP,				// use this drawing primitive, and
+								  sphStart/floatsPerVertex,	// start at this vertex number, and 
+								  sphVerts.length/floatsPerVertex);	// draw this many vertices.
+
+	  modelMatrix.translate(0.0, 0.0, 1.0);
+	  modelMatrix.scale(0.2, 0.2, 0.8);
+	  gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+	  gl.drawArrays(gl.TRIANGLES, 
+	  						treeBarkStart/floatsPerVertex,
+	  						treeBarkVerts.length/floatsPerVertex);
+	modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
+	
+	//===========================================================
   
   //===========================================================
-  //  
-  // pushMatrix(modelMatrix);  // SAVE world drawing coords.
-  // //--------Draw Spinning torus
-  //   modelMatrix.translate(-0.4, 0.4, 0.0);	// 'set' means DISCARD old matrix,
-  
-  //   modelMatrix.scale(0.3, 0.3, 0.3);
-  //   						// Make it smaller:
-  //   modelMatrix.rotate(currentAngle, 0, 1, 1);  // Spin on YZ axis
-  // 	// Drawing:		
-  // 	// Pass our current matrix to the vertex shaders:
-  //   gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
-  //   		// Draw just the torus's vertices
-  //   gl.drawArrays(gl.TRIANGLE_STRIP, 				// use this drawing primitive, and
-  //   						  torStart/floatsPerVertex,	// start at this vertex number, and
-  //   						  torVerts.length/floatsPerVertex);	// draw this many vertices.
-  // modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
+  //   DRAW TREE
+
+  pushMatrix(modelMatrix);  // SAVE world drawing coords.
+  //--------Draw Spinning torus
+    	// 'set' means DISCARD old matrix,
+    modelMatrix.translate(-1, 1, 0.0);
+    modelMatrix.scale(0.4, 0.4, 0.4)
+	gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+	gl.drawArrays(gl.TRIANGLES, 				// use this drawing primitive, and
+    						  treeBarkStart/floatsPerVertex,	// start at this vertex number, and
+    						  treeBarkVerts.length/floatsPerVertex);	// draw this many vertices.
+
+  	modelMatrix.translate(0.0, 0.0, 1.0);
+    modelMatrix.scale(1.3, 1.3, 1.3);
+    modelMatrix.rotate(currentAngle, 1, 0, 0);
+    						// Make it smaller:
+    //modelMatrix.rotate(currentAngle, 0, 1, 1);  // Spin on YZ axis
+  	// Drawing:		
+  	// Pass our current matrix to the vertex shaders:
+    gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+    		// Draw just the torus's vertices
+    gl.drawArrays(gl.TRIANGLES, 				// use this drawing primitive, and
+    						  treePartStart/floatsPerVertex,	// start at this vertex number, and
+    						  treePartVerts.length/floatsPerVertex);	// draw this many vertices.
+   	
+   	modelMatrix.scale(0.8, 0.8, 0.8);
+   	modelMatrix.translate(0.0, 0.0, 1.0);
+   	modelMatrix.rotate(currentAngle, 1, 0, 0);
+   	gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+
+    gl.drawArrays(gl.TRIANGLES, 				// use this drawing primitive, and
+    						  treePartStart/floatsPerVertex,	// start at this vertex number, and
+    
+    						  treePartVerts.length/floatsPerVertex);
+ 	modelMatrix.scale(0.7, 0.7, 0.7);
+    modelMatrix.translate(0.0, 0.0, 1.0);
+   	modelMatrix.rotate(currentAngle, 1, 0, 0);
+   	gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+
+    gl.drawArrays(gl.TRIANGLES, 				// use this drawing primitive, and
+    						  treePartStart/floatsPerVertex,	// start at this vertex number, and
+    						  treePartVerts.length/floatsPerVertex);
+    modelMatrix.scale(0.5, 0.5, 0.5);
+    modelMatrix.translate(0.0, 0.0, 2.5);
+    modelMatrix.rotate(90, 1, 0, 0);
+    modelMatrix.rotate(currentAngle, 1, 0, 0);
+    gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+			  // Draw just the sphere's vertices
+	gl.drawArrays(gl.TRIANGLE_STRIP,				// use this drawing primitive, and
+								  torStart/floatsPerVertex,	// start at this vertex number, and 
+								  torVerts.length/floatsPerVertex);	// draw this many vertices.
+  modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
   //===========================================================
-  //
-  //pushMatrix(modelMatrix);  // SAVE world drawing coords.
+  // DRAW GROUND GRID
+  pushMatrix(modelMatrix);  // SAVE world drawing coords.
+
   	//---------Draw Ground Plane, without spinning.
   	// position it.
   	modelMatrix.translate( 0.4, -0.4, 0.0);	
@@ -900,6 +1186,8 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
     						  gndVerts.length/floatsPerVertex);	// draw this many vertices.
   modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
 
+//NEW VIEWPORT
+  
   //===========================================================
 
   gl.viewport(innerWidth/2, 0, innerWidth/2, innerHeight);
@@ -1025,6 +1313,17 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
 // Last time that this function was called:  (used for animation timing)
 var g_last = Date.now();
 
+function animate(){
+	var now = Date.now();
+  	var elapsed = now - g_last;
+  	g_last = now;  
+
+ 	if (tree_angle < 30.0&& tree_angleRate > 0) tree_angleRate = -tree_angleRate;
+  	if (tree_angle < -30 && tree_angleRate < 0) tree_angleRate = -tree_angleRate;
+  	tree_angle = tree_angle + (tree_angleRate * elapsed) / 1000.0;  
+  	return tree_angle
+}
+
 function animate(angle) {
 //==============================================================================
   // Calculate the elapsed time
@@ -1035,9 +1334,13 @@ function animate(angle) {
   //  limit the angle to move smoothly between +20 and -85 degrees:
 //  if(angle >  120.0 && ANGLE_STEP > 0) ANGLE_STEP = -ANGLE_STEP;
 //  if(angle < -120.0 && ANGLE_STEP < 0) ANGLE_STEP = -ANGLE_STEP;
-  
+  if (angle < 30.0 && angle > 0) ANGLE_STEP = -ANGLE_STEP;
+  if (angle < -30 && angle < 0) ANGLE_STEP = -ANGLE_STEP;
+
   var newAngle = angle + (ANGLE_STEP * elapsed) / 1000.0;
   return newAngle %= 360;
+
+ 
 }
 
 //==================HTML Button Callbacks
