@@ -55,7 +55,7 @@ var eyeZ = 3.0;
 var atX = -1.0;
 var atY = -2.0;
 var atZ = 0.5;
-var theta = -68.0;  // turn camera horizontally to angle theta
+var theta = -70.0;  // turn camera horizontally to angle theta
 var r = eyeY-atY;  // radius of camera cylinder
 var tilt = 0.0;
 
@@ -188,11 +188,12 @@ function initVertexBuffer(gl) {
   makeGiraffeHorn();
   maketreeParts();
   makeTreeBark();
+  makeAxis();
   // how many floats total needed to store all shapes?
 	var mySiz = (cylVerts.length + sphVerts.length + 
 							 torVerts.length + gndVerts.length+giraffeNeckVerts.length+
 							 giraffeHeadVerts.length+giraffeEarsVerts.length + giraffeHornVerts.length + 
-							 treePartVerts.length + treeBarkVerts.length);						
+							 treePartVerts.length + treeBarkVerts.length + axisVerts.length);						
 
 	// How many vertices total?
 	var nn = mySiz / floatsPerVertex;
@@ -239,6 +240,10 @@ function initVertexBuffer(gl) {
 		treeBarkStart = i;
 	for(j=0; j<treeBarkVerts.length; i++,j++){
 		colorShapes[i] = treeBarkVerts[j];
+	}
+		axisStart = i;
+	for(j=0; j<axisVerts.length; i++,j++){
+		colorShapes[i] = axisVerts[j];
 	}
 
   // Create a buffer object on the graphics hardware:
@@ -937,6 +942,19 @@ function makeTreeBark(){
 	])
 }
 
+function makeAxis(){
+	axisVerts = new Float32Array([
+		0.0, 0.0, 0.0, 1.0,        1.0, 0.0, 0.0,
+		3.0, 0.0, 0.0, 1.0,        1.0, 0.0, 0.0,
+
+		0.0, 0.0, 0.0, 1.0,        0.0, 1.0, 0.0, 
+		0.0, 3.0, 0.0, 1.0,        0.0, 1.0, 0.0,
+
+		0.0, 0.0, 0.0, 1.0,        0.0, 0.0, 1.0,
+		0.0, 0.0, 3.0, 1.0,        0.0, 0.0, 1.0,
+	])
+}
+
 
 
 function drawAll(gl, n, currentAngle, modelMatrix, u_ModelMatrix) {
@@ -1112,7 +1130,17 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
     // 							giraffeHeadVerts.length/floatsPerVertex);
   modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
 
+  //===========================================================
+  // draw box next to water thing
 
+  pushMatrix(modelMatrix);
+  modelMatrix.translate(2.0, 1.0, 0.0);
+  modelMatrix.scale(0.5, 0.5, 0.5);
+  gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+  gl.drawArrays(gl.TRIANGLES, 
+  							treeBarkStart/floatsPerVertex,
+  							treeBarkVerts.length/floatsPerVertex);
+  modelMatrix = popMatrix();
   //===========================================================
 	//  draw APPLE
 	pushMatrix(modelMatrix);  // SAVE world drawing coords.
@@ -1196,6 +1224,13 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
 								  torVerts.length/floatsPerVertex);	// draw this many vertices.
   modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
   //===========================================================
+
+  // DRAW AXIS
+  gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+  gl.drawArrays(gl.LINES, 								// use this drawing primitive, and
+    						  axisStart/floatsPerVertex,	// start at this vertex number, and
+    						  axisVerts.length/floatsPerVertex);	// draw this many vertices.
+
   // DRAW GROUND GRID
   
 
@@ -1250,10 +1285,13 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
   // 				   -1, -2, 0.5,
   // 				    0,  0,    1);
   
-  modelMatrix.setPerspective(42.0, canvas.width/2/canvas.height, 1.0, 1000);
+modelMatrix.setPerspective(40.0, canvas.width/2/canvas.height, 1.0, 31);
   
 pushMatrix(modelMatrix);
-modelMatrix.setOrtho(-3, 3, -3, 3, 0, 30.0);
+//modelMatrix.setOrtho(-3, 3, -3, 3, 0, 30.0);
+//modelMatrix.setOrtho(-5, 5, -5, 5, 0, 30.0);
+
+modelMatrix.setOrtho(-5 * canvas.width/2/canvas.height, 5 * canvas.width/2/canvas.height, -5, 5, 1.0, 30);
 modelMatrix.lookAt(eyeX, eyeY, eyeZ,
 				     atX, atY, atZ,
 					 0,     0,   1);
@@ -1460,6 +1498,12 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
 								  torVerts.length/floatsPerVertex);	// draw this many vertices.
   modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
   //===========================================================
+ // DRAW AXIS
+  gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+  gl.drawArrays(gl.LINES, 								// use this drawing primitive, and
+    						  axisStart/floatsPerVertex,	// start at this vertex number, and
+    						  axisVerts.length/floatsPerVertex);	// draw this many vertices.
+
   // DRAW GROUND GRID
   
 
@@ -1699,17 +1743,24 @@ function dragQuat(xdrag, ydrag) {
 
 
 function myKeyDown(ev){
+	var x_dist = eyeX-atX;
+	var y_dist = eyeY-atY;
+	var z_dist = eyeZ-atZ;
+
+	var hyp_xy = Math.sqrt(Math.pow(x_dist, 2) + Math.pow(y_dist, 2));
+	var hyp_xyz = Math.sqrt(Math.pow(x_dist, 2) + Math.pow(y_dist, 2) + Math.pow(z_dist, 2));
+
     switch(ev.code){
-        case "KeyP":
-          // Toggle rotation
-          if(ANGLE_STEP*ANGLE_STEP > 1) {
-            myTmp = ANGLE_STEP;
-            ANGLE_STEP = 0;
-          }
-          else {
-            ANGLE_STEP = myTmp;
-          }
-          break;
+        // case "KeyP":
+        //   // Toggle rotation
+        //   if(ANGLE_STEP*ANGLE_STEP > 1) {
+        //     myTmp = ANGLE_STEP;
+        //     ANGLE_STEP = 0;
+        //   }
+        //   else {
+        //     ANGLE_STEP = myTmp;
+        //   }
+        //   break;
 
         case "KeyA":
             // camera move left
@@ -1717,6 +1768,7 @@ function myKeyDown(ev){
             eyeY += 0.1*Math.sin(theta*Math.PI/180);
             atX += 0.1*Math.cos(theta*Math.PI/180);
             atY += 0.1*Math.sin(theta*Math.PI/180);
+
             break;
 
         case "KeyD":
