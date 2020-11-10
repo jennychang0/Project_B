@@ -1214,7 +1214,7 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
     						  treePartStart/floatsPerVertex,	// start at this vertex number, and
     						  treePartVerts.length/floatsPerVertex);
     modelMatrix.scale(0.5, 0.5, 0.5);
-    modelMatrix.translate(0.0, 0.0, 2.5);
+    modelMatrix.translate(0.0, 0.0, 3.4);
     modelMatrix.rotate(90, 1, 0, 0);
     modelMatrix.rotate(currentAngle, 1, 0, 0);
     gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
@@ -1414,7 +1414,17 @@ modelMatrix.lookAt(eyeX, eyeY, eyeZ,
     // 							giraffeHeadVerts.length/floatsPerVertex);
   modelMatrix = popMatrix();  // RESTORE 'world' drawing coords.
 
+  //===========================================================
+  // draw box next to water thing
 
+  pushMatrix(modelMatrix);
+  modelMatrix.translate(2.0, 1.0, 0.0);
+  modelMatrix.scale(0.5, 0.5, 0.5);
+  gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+  gl.drawArrays(gl.TRIANGLES, 
+  							treeBarkStart/floatsPerVertex,
+  							treeBarkVerts.length/floatsPerVertex);
+  modelMatrix = popMatrix();
   //===========================================================
 	//  draw APPLE
 	pushMatrix(modelMatrix);  // SAVE world drawing coords.
